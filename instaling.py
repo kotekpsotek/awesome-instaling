@@ -2,6 +2,7 @@ import os
 import re
 import time
 import random
+import googletrans
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
@@ -14,6 +15,14 @@ def put_keys_as_a_user(string: str, in_element): # imitate user in putting lette
         in_element.send_keys(letter)
         sleep_time = random.uniform(0.180, 0.700) # genereate random float number
         time.sleep(sleep_time)
+
+def translate_word(word: str): # this function translate word from parameter to english (default) and return translated word from her body
+    translator_machine = googletrans.Translator()
+    translator_word_lang_detect = translator_machine.detect(word).lang
+    translated_word = translator_machine.translate(word, dest="en", src=translator_word_lang_detect) # get the translated word text
+    
+    return translated_word
+
 
 def start_new_session():
     start_session_button = browser.find_element(By.XPATH, '//*[@id="student_panel"]/p[1]/a')
@@ -31,14 +40,14 @@ def start_new_session():
             elif start_repeat_page.is_displayed():
                 button = start_repeat_page.find_element(By.CLASS_NAME, "big_button")
             else:
-                continue_session_page.find_element(By.CLASS_NAME, "big_button")
+                button = continue_session_page.find_element(By.CLASS_NAME, "big_button")
             button.click()
 
             #### Session words TODO: !!!!
             learning_page = browser.find_element(By.ID, "learning_page")
             # Section with question and word/words to translate
-            learning_page_question_usage_example_text: str = learning_page.find_element(By.XPATH, "//div[@id=\"question\"]/div[@class=\"usage_example\"]").text() # question text
-            learning_page_question_caption_translations_text: str = learning_page.find_element(By.XPATH, "//div[@id=\"question\"]/div[@class=\"caption\"]/div[@class=\"translations\"]").text() # word which should be translated
+            learning_page_question_usage_example_text: str = learning_page.find_element(By.XPATH, "//div[@id=\"question\"]/div[@class=\"usage_example\"]").text # question text
+            learning_page_question_caption_translations_text: str = learning_page.find_element(By.XPATH, "//div[@id=\"question\"]/div[@class=\"caption\"]/div[@class=\"translations\"]").text # word which should be translated
             # Section with input for answer and submit button
             learning_page_learning_form_check_input: WebElement = learning_page.find_element(By.XPATH, "//div[@class=\"learning_form\"]/table//input[@id=\"answer\"]") # Input Element for the answer
             learning_page_learning_form_check_button: WebElement = learning_page.find_element(By.XPATH, "//div[@class=\"learning_form\"]/div[@id=\"check\"]") # Button to submit translation
@@ -51,6 +60,9 @@ def start_new_session():
                 word_to_translate = learning_page_question_caption_translations_text.split(";")[0].strip()
             else:
                 word_to_translate = learning_page_question_caption_translations_text.strip()
+
+            translated_word = translate_word(word_to_translate)
+            # TODO: code must working for multiple words translations so top code should be in infinity loop (while is in python the best for that)
         else:
             print("Something wents wrong!!!")
     else:
@@ -86,4 +98,4 @@ def start_instaling(user_login: str, user_password: str): # i know, i know i don
 
 
 if __name__ == "__main__":
-   start_instaling("test_login_data", "test_password")
+    start_instaling("test_login_data", "test_password")
