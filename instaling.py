@@ -1,8 +1,9 @@
 import os
-import re
 import time
+import json
 import random
 import googletrans
+from googletrans.models import Translated
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
@@ -23,6 +24,47 @@ def translate_word(word: str): # this function translate word from parameter to 
     
     return translated_word
 
+path_with_words_translation_file: str = "./translations.json"
+def save_translation_in_json_file(word_to_translate, word_translation): # Function which aim is save word translation in .json file with translations when this word translation doesn't already exist
+    # Function which saves added changes in .json file
+    def save_changes_in_json_file(content):
+        serialize_changed_content_to_json_schema_again = json.dumps(content, indent=4, sort_keys=True)
+        file_with_words_translations_write = open(path_with_words_translation_file, "w")
+        file_with_words_translations_write.write(serialize_changed_content_to_json_schema_again)
+        file_with_words_translations_write.close()
+    
+    file_with_translations_only_to_read = open(path_with_words_translation_file, "r")
+    file_with_translations_content = file_with_translations_only_to_read.read()
+
+    if file_with_translations_content.__len__() > 0: # when transations.json isn't empty then file will be updating
+        # Deserialize .json file content to JSON object syntax
+        file_content_json = json.loads(file_with_translations_content)
+        
+        # Get .json words list for add new words to array
+        words_list_from_json_file: list[dict[str, str]] = file_content_json["words_list"]
+        
+        # Add new word translation to translations file
+        ## Check when this word translation doesn't already exists
+        key_already_has_been_translated: bool = False
+        for s_dict in words_list_from_json_file:
+            if s_dict["word_question"] == word_to_translate:
+                key_already_has_been_translated = True
+                break
+        ### When the same key hasn't be found in .json file content with translations then this translation will be saved
+        if not key_already_has_been_translated:
+            word_translation_dict = { "word_question": word_to_translate, "word_translation": word_translation }
+            words_list_from_json_file.append(word_translation_dict)
+            
+            # Save new added translated word in .json file with words transation
+            save_changes_in_json_file(file_content_json)
+    else: # when transations.json file is empty then to file will be adding new translated word
+        # Create .json file with translations JSON format Schema
+        translated_words_file_json_content = { "words_list" : [{ "word_question": word_to_translate, "word_translation": word_translation }] }
+        
+        # Save new added translated word in .json file with words transation
+        save_changes_in_json_file(translated_words_file_json_content)
+
+    file_with_translations_only_to_read.close()
 
 def start_new_session():
     start_session_button = browser.find_element(By.XPATH, '//*[@id="student_panel"]/p[1]/a')
@@ -51,18 +93,7 @@ def start_new_session():
             # Section with input for answer and submit button
             learning_page_learning_form_check_input: WebElement = learning_page.find_element(By.XPATH, "//div[@class=\"learning_form\"]/table//input[@id=\"answer\"]") # Input Element for the answer
             learning_page_learning_form_check_button: WebElement = learning_page.find_element(By.XPATH, "//div[@class=\"learning_form\"]/div[@id=\"check\"]") # Button to submit translation
-            
-            # Converted word to translation (the result is the single word)
-            word_to_translate: str
-            if learning_page_question_caption_translations_text.__contains__(","):
-                word_to_translate = learning_page_question_caption_translations_text.split(",")[0].strip()
-            elif learning_page_question_caption_translations_text.__contains__(";"):
-                word_to_translate = learning_page_question_caption_translations_text.split(";")[0].strip()
-            else:
-                word_to_translate = learning_page_question_caption_translations_text.strip()
-
-            translated_word = translate_word(word_to_translate)
-            # TODO: code must working for multiple words translations so top code should be in infinity loop (while is in python the best for that)
+        
         else:
             print("Something wents wrong!!!")
     else:
