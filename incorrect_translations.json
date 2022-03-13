@@ -13,28 +13,16 @@
             "word_translation": "Local artistic crafts"
         },
         {
-            "question_content": "It was too _____ to sail that night.",
+            "question_content": "",
             "type": "totally bad translation",
             "word_to_translate": "wzburzony",
             "word_translation": "choppy"
         },
         {
-            "question_content": "It was too _____ to sail that night.",
+            "question_content": "Why did you ______ her offer?",
             "type": "totally bad translation",
-            "word_to_translate": " niespokojny (o morzu)",
-            "word_translation": "Anxious (sea)"
-        },
-        {
-            "question_content": "It was too _____ to sail that night.",
-            "type": "totally bad translation",
-            "word_to_translate": "",
-            "word_translation": ""
-        },
-        {
-            "question_content": "His ideas were _________ because his boss didn't like them.",
-            "type": "totally bad translation",
-            "word_to_translate": "wyrzucone",
-            "word_translation": "thrown"
+            "word_to_translate": "odrzuca\u0107",
+            "word_translation": "to reject"
         }
     ]
 }

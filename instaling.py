@@ -37,38 +37,40 @@ def save_changes_in_json_file(content, file_localization):
 # Function which aim is save word translation in .json file with translations when this word translation doesn't already exist
 path_with_words_translation_file: str = "./translations.json"
 def save_correct_translation_in_json_file(word_to_translate, word_translation):
-    file_with_translations_only_to_read = open(path_with_words_translation_file, "r")
-    file_with_translations_content = file_with_translations_only_to_read.read()
+    # When word translation and word to translate isn't empty
+    if word_to_translate != "" and word_translation != "":
+        file_with_translations_only_to_read = open(path_with_words_translation_file, "r")
+        file_with_translations_content = file_with_translations_only_to_read.read()
 
-    if file_with_translations_content.__len__() > 0: # when transations.json isn't empty then file will be updating
-        # Deserialize .json file content to JSON object syntax
-        file_content_json = json.loads(file_with_translations_content)
-        
-        # Get .json words list for add new words to array
-        words_list_from_json_file: list[dict[str, str]] = file_content_json["words_list"]
-        
-        # Add new word translation to translations file
-        ## Check when this word translation doesn't already exists
-        key_already_has_been_translated: bool = False
-        for s_dict in words_list_from_json_file:
-            if s_dict["word_question"] == word_to_translate:
-                key_already_has_been_translated = True
-                break
-        ### When the same key hasn't be found in .json file content with translations then this translation will be saved
-        if not key_already_has_been_translated:
-            word_translation_dict = { "word_question": word_to_translate, "word_translation": word_translation }
-            words_list_from_json_file.append(word_translation_dict)
-            
+        if file_with_translations_content.__len__() > 0: # when transations.json isn't empty then file will be updating
+            # Deserialize .json file content to JSON object syntax
+            file_content_json = json.loads(file_with_translations_content)
+
+            # Get .json words list for add new words to array
+            words_list_from_json_file: list[dict[str, str]] = file_content_json["words_list"]
+
+            # Add new word translation to translations file
+            ## Check when this word translation doesn't already exists
+            key_already_has_been_translated: bool = False
+            for s_dict in words_list_from_json_file:
+                if s_dict["word_question"] == word_to_translate:
+                    key_already_has_been_translated = True
+                    break
+            ### When the same key hasn't be found in .json file content with translations then this translation will be saved
+            if not key_already_has_been_translated:
+                word_translation_dict = { "word_question": word_to_translate, "word_translation": word_translation }
+                words_list_from_json_file.append(word_translation_dict)
+
+                # Save new added translated word in .json file with words transation
+                save_changes_in_json_file(file_content_json, path_with_words_translation_file)
+        else: # when transations.json file is empty then to file will be adding new translated word
+            # Create .json file with translations JSON format Schema
+            translated_words_file_json_content = { "words_list" : [{ "word_question": word_to_translate, "word_translation": word_translation }] }
+
             # Save new added translated word in .json file with words transation
-            save_changes_in_json_file(file_content_json, path_with_words_translation_file)
-    else: # when transations.json file is empty then to file will be adding new translated word
-        # Create .json file with translations JSON format Schema
-        translated_words_file_json_content = { "words_list" : [{ "word_question": word_to_translate, "word_translation": word_translation }] }
-        
-        # Save new added translated word in .json file with words transation
-        save_changes_in_json_file(translated_words_file_json_content, path_with_words_translation_file)
+            save_changes_in_json_file(translated_words_file_json_content, path_with_words_translation_file)
 
-    file_with_translations_only_to_read.close()
+        file_with_translations_only_to_read.close()
 
 # Function which get translation for added word by searching word to translate in .json file with words translations. If word to translate has been found then function returns his translation or returns empty string when word to translate coudn't be found
 def get_word_translation_from_file(word_question: str):
@@ -113,50 +115,52 @@ def save_bad_word_translation(question_for_word_usage, word_to_translate, word_t
 
         To save bad translation must be added 4 parameters but for verification if word translation isn't bad translated are needed only 3 params: question_for_word_usage, word_to_translate, word_translation and this process is made by function \"word_translation_is_bad()\" which returns logical value
     """
-    # Read content of file with bad word translations
-    file_with_bad_translations_only_to_read = open(path_with_bad_words_translations_file, "r")
-    file_with_bad_translations_content = file_with_bad_translations_only_to_read.read()
+    # When word translation and word to translate isn't empty
+    if word_to_translate != "" and word_translation != "":
+        # Read content of file with bad word translations
+        file_with_bad_translations_only_to_read = open(path_with_bad_words_translations_file, "r")
+        file_with_bad_translations_content = file_with_bad_translations_only_to_read.read()
 
-    if file_with_bad_translations_content.__len__() > 0: # when transations.json isn't empty then file will be updating
-        # Deserialize .json file content to JSON object syntax
-        file_content_json = json.loads(file_with_bad_translations_content)
+        if file_with_bad_translations_content.__len__() > 0: # when transations.json isn't empty then file will be updating
+            # Deserialize .json file content to JSON object syntax
+            file_content_json = json.loads(file_with_bad_translations_content)
 
-        # Get .json bad translated words list for add new bad word translation to array
-        bad_words_translation_list_from_json_file: list[dict[str, str, str]] = file_content_json["incorrect_list"]
+            # Get .json bad translated words list for add new bad word translation to array
+            bad_words_translation_list_from_json_file: list[dict[str, str, str]] = file_content_json["incorrect_list"]
 
-        # Add new bad word translation to file with bad words translations
-        ## Check when this bad word translation hasn't be already added
-        bad_word_translation_already_has_been_added: bool = False
-        for sing_bad_word_translation_dict in bad_words_translation_list_from_json_file:
-            local_bad_translation_type = sing_bad_word_translation_dict["type"]
-            local_word_usage_question = sing_bad_word_translation_dict["question_content"]
-            local_word_to_translate = sing_bad_word_translation_dict["word_to_translate"]
-            local_word_translation = sing_bad_word_translation_dict["word_translation"]
+            # Add new bad word translation to file with bad words translations
+            ## Check when this bad word translation hasn't be already added
+            bad_word_translation_already_has_been_added: bool = False
+            for sing_bad_word_translation_dict in bad_words_translation_list_from_json_file:
+                local_bad_translation_type = sing_bad_word_translation_dict["type"]
+                local_word_usage_question = sing_bad_word_translation_dict["question_content"]
+                local_word_to_translate = sing_bad_word_translation_dict["word_to_translate"]
+                local_word_translation = sing_bad_word_translation_dict["word_translation"]
 
-            if local_bad_translation_type == type and local_word_usage_question == question_for_word_usage and local_word_to_translate == word_to_translate and local_word_translation == word_translation:
-                bad_word_translation_already_has_been_added = True
-                break
+                if local_bad_translation_type == type and local_word_usage_question == question_for_word_usage and local_word_to_translate == word_to_translate and local_word_translation == word_translation:
+                    bad_word_translation_already_has_been_added = True
+                    break
 
-        ### When the same bad word translation hasn't be found in .json file content with bad word translations then this bad word translation will be saved
-        if not bad_word_translation_already_has_been_added:
-            instance_bad_word_translation_src = { "type": type, "question_content": question_for_word_usage, "word_to_translate": word_to_translate, "word_translation": word_translation }
-            bad_words_translation_list_from_json_file.append(instance_bad_word_translation_src)
-            
-            # Save new added translated word in .json file with words transation
-            save_changes_in_json_file(file_content_json, path_with_bad_words_translations_file)
-    else: # when incorrect_translations.json file is empty then to file will be adding new translated word
-        # Create .json file with translations JSON format Schema
-        bad_translated_words_file_json_content = { "incorrect_list" : [ {
-            "type": type,
-            "question_content": question_for_word_usage,
-            "word_to_translate": word_to_translate,
-            "word_translation": word_translation
-        }] }
+            ### When the same bad word translation hasn't be found in .json file content with bad word translations then this bad word translation will be saved
+            if not bad_word_translation_already_has_been_added:
+                instance_bad_word_translation_src = { "type": type, "question_content": question_for_word_usage, "word_to_translate": word_to_translate, "word_translation": word_translation }
+                bad_words_translation_list_from_json_file.append(instance_bad_word_translation_src)
 
-        # Save bad word translation in json file (incorrect_translations.json)
-        save_changes_in_json_file(bad_translated_words_file_json_content, path_with_bad_words_translations_file)
+                # Save new added translated word in .json file with words transation
+                save_changes_in_json_file(file_content_json, path_with_bad_words_translations_file)
+        else: # when incorrect_translations.json file is empty then to file will be adding new translated word
+            # Create .json file with translations JSON format Schema
+            bad_translated_words_file_json_content = { "incorrect_list" : [ {
+                "type": type,
+                "question_content": question_for_word_usage,
+                "word_to_translate": word_to_translate,
+                "word_translation": word_translation
+            }] }
 
-    file_with_bad_translations_only_to_read.close()
+            # Save bad word translation in json file (incorrect_translations.json)
+            save_changes_in_json_file(bad_translated_words_file_json_content, path_with_bad_words_translations_file)
+
+        file_with_bad_translations_only_to_read.close()
 
 # Function checks if added translated word isn't in bad words translation file
 ## Behaviour: Function returns False when word translation is correct or True when word translation is incorrect
