@@ -1,0 +1,10 @@
+{
+    "incorrect_list": [
+        {
+            "question_content": "this is the question added at the top of words to translate",
+            "type": "totally/synonim",
+            "word_to_translate": "word which will be translated",
+            "word_translation": "translated word"
+        }
+    ]
+}
