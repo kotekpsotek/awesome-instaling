@@ -5,6 +5,36 @@
             "type": "totally/synonim",
             "word_to_translate": "word which will be translated",
             "word_translation": "translated word"
+        },
+        {
+            "question_content": "Tina always tries to support _____ ___________.",
+            "type": "totally bad translation",
+            "word_to_translate": "lokalne rzemios\u0142o artystyczne",
+            "word_translation": "Local artistic crafts"
+        },
+        {
+            "question_content": "It was too _____ to sail that night.",
+            "type": "totally bad translation",
+            "word_to_translate": "wzburzony",
+            "word_translation": "choppy"
+        },
+        {
+            "question_content": "It was too _____ to sail that night.",
+            "type": "totally bad translation",
+            "word_to_translate": " niespokojny (o morzu)",
+            "word_translation": "Anxious (sea)"
+        },
+        {
+            "question_content": "It was too _____ to sail that night.",
+            "type": "totally bad translation",
+            "word_to_translate": "",
+            "word_translation": ""
+        },
+        {
+            "question_content": "His ideas were _________ because his boss didn't like them.",
+            "type": "totally bad translation",
+            "word_to_translate": "wyrzucone",
+            "word_translation": "thrown"
         }
     ]
 }

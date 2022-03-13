@@ -208,6 +208,7 @@ def start_new_session():
             button.click()
 
             #### Session words!!!!
+            time.sleep(0.5) # wait 0.5 sec before starts doing asnwer action
             learning_page = browser.find_element(By.ID, "learning_page")
             # Section with question and word/words to translate
             learning_page_question_usage_example_text: str = learning_page.find_element(By.XPATH, "//div[@id=\"question\"]/div[@class=\"usage_example\"]").text # question text
@@ -256,7 +257,7 @@ def start_new_session():
 
                 # When translation for word coudn't be getted from some reason
                 if len(return_word_translation[0]) == 0 and len(return_word_translation[1]) == 0:
-                    print("You should in future add transaltion for word: " + communication_word_translate + " because program coudn't get correct translation for it using access to added word translations by you (in file \"translations.json\") and google transaltor")
+                    print("You should in future add transaltion for word: \"" + communication_word_translate + "\" because program coudn't get correct translation for it using access to added word translations by you (in file \"translations.json\") and google transaltor")
                     print("The transaltion for this word coudn't be known, so it has been set as a empty value \"\"")
 
                 return return_word_translation
@@ -299,6 +300,18 @@ def start_new_session():
             answer_result_from_answer_page: WebElement = browser.find_element(By.XPATH, "//div[@id=\"answer_page\"]//h4[@id=\"answer_result\"]/div") # answer result
             answer_result_type = answer_result_from_answer_page.get_attribute("class") # value of answer result
             
+            # Function which saves correct answer in file with correct answers when bot answered wrong
+            def save_correct_answer_after_bad_answering():
+                local_word_to_translate = browser.find_element(By.XPATH, "/html/body/div/div[9]/div[1]/div[3]/div[2]") # get element with word to translate
+                local_translated_word = browser.find_element(By.XPATH, "/html/body/div/div[9]/div[1]/div[2]") # get element with word translation
+                
+                # When "answer page" is displayed but no "finish page"
+                if local_word_to_translate.is_displayed() and local_translated_word.is_displayed():
+                    local_word_to_translate_txt = local_word_to_translate.text
+                    local_translated_word_txt = local_translated_word.text
+                    save_correct_translation_in_json_file(word_to_translate=local_word_to_translate_txt, word_translation=local_translated_word_txt)
+
+
             ## Source of checking if word translation is correct
             if answer_result_type == "green": # answer is correct
                 # Save word transation in .json file when this word translation isn't already exist
@@ -308,15 +321,32 @@ def start_new_session():
             elif answer_result_type == "blue": # answer is incorrect because putted word is synonim or in word has been detected typo error
                 # Save incorrect word into specific file and form for "blue"
                 save_bad_word_translation(learning_page_question_usage_example_text, word_to_translate, translated_word, "synonim")
+                # Save correct word translation after bad answer
+                save_correct_answer_after_bad_answering()
                 # print answer color
                 print("blue")
             elif answer_result_type == "red": # answer is totally incorrect
                 # Save incorrect word into specific file and form for "red"
                 save_bad_word_translation(learning_page_question_usage_example_text, word_to_translate, translated_word, "totally bad translation")
+                # Save correct word translation after bad answer
+                save_correct_answer_after_bad_answering()
                 # print answer color
                 print("red")
             else:
                 raise ValueError("Unexpected answer result!!! Program has handled only: red, green and blue answer result")
+
+            # Go to next question or cancel session when last answer has been pass
+            check_answer_page = browser.find_element(By.XPATH, "/html/body/div/div[9]")
+            finish_page = browser.find_element(By.XPATH, "/html/body/div/div[12]")
+
+            if check_answer_page.is_displayed():
+                # Go to next Question via click in "Następne" button after end previous question
+                go_to_next_question_button = browser.find_element(By.XPATH, "/html/body/div/div[9]/div[4]/h4")
+                go_to_next_question_button.click()
+            elif finish_page.is_displayed():
+                # Go to main instaling.pl user panel after end the session
+                go_to_main_instaling_page = browser.find_element(By.XPATH, "/html/body/div/div[12]/div[2]/h4")
+                go_to_main_instaling_page.click()
 
             # TODO: code must working for multiple words translations so top code should be in infinity loop (while is in python the best for that)
         else:
