@@ -3,6 +3,10 @@
         {
             "word_question": "pizza",
             "word_translation": "translation for word pizza!!!"
+        },
+        {
+            "word_question": "\u0142y\u017cka",
+            "word_translation": "spoon"
         }
     ]
 }
