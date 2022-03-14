@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import json
 import random
@@ -37,7 +38,11 @@ def save_changes_in_json_file(content, file_localization):
 # Function which aim is save word translation in .json file with translations when this word translation doesn't already exist
 ## Behaviour: Word translation will be save when question_with_word_usage and word_to_translate added for function params isn't empty and when them isn't just as this keys from .json file, or Update Empty Question when in file with translations has been empty question ("question_content": "") and "word_to_translate" and "word_translation" from file is the same as these parameters added for this function 
 path_with_words_translation_file: str = "./translations.json"
-def save_correct_translation_in_json_file(question_with_word_usage, word_to_translate, word_translation):
+def save_correct_translation_in_json_file(question_with_word_usage, word_to_translate: str, word_translation: str):
+    # Converted variables to correct form
+    word_to_translate = word_to_translate.lower().strip()
+    word_translation = word_translation.lower().strip()
+    
     # When word translation and word to translate isn't empty
     if word_to_translate != "" and word_translation != "":
         file_with_translations_only_to_read = open(path_with_words_translation_file, "r")
@@ -148,7 +153,7 @@ def get_word_translation_from_file(question_with_word_usage: str, word_to_transl
 
 # Function which save bad word translation with all added keys in function parameters in .json file (incorrect_translations.json) when this word translation isn't already exists
 path_with_bad_words_translations_file: str = "./incorrect_translations.json"
-def save_bad_word_translation(question_with_word_usage, word_to_translate, word_translation, type):
+def save_bad_word_translation(question_with_word_usage, word_to_translate: str, word_translation: str, type):
     """ Function params introduce:
         question_with_word_usage - this is question placed at the top of container with word to translate and this question looks like: They sell it at an __________ price,
         word_to_translate - this is world which is bad translated
@@ -157,6 +162,10 @@ def save_bad_word_translation(question_with_word_usage, word_to_translate, word_
 
         To save bad translation must be added 4 parameters but for verification if word translation isn't bad translated are needed only 3 params: question_with_word_usage, word_to_translate, word_translation and this process is made by function \"word_translation_is_bad()\" which returns logical value
     """
+    # Converted variables to correct form
+    word_to_translate = word_to_translate.lower().strip()
+    word_translation = word_translation.lower().strip()
+
     # When word translation and word to translate isn't empty
     if word_to_translate != "" and word_translation != "":
         # Read content of file with bad word translations
@@ -349,7 +358,7 @@ def start_new_session():
                     translated_word = translate_this_word(word_to_translate=word_to_translate)[1]
 
                 # Put answer to input and accept by click in accept answer button
-                put_keys_as_a_user(translated_word, learning_page_learning_form_check_input) # Put translated word to input for answer
+                put_keys_as_a_user(translated_word.lower().strip(), learning_page_learning_form_check_input) # Put translated word to input for answer
                 time.sleep(timeout_between_pass_word_and_check_it)
                 learning_page_learning_form_check_button.click() # Accept putted value in input
 
@@ -366,9 +375,13 @@ def start_new_session():
 
                     # When "answer page" is displayed but no "finish page"
                     if local_word_to_translate.is_displayed() and local_translated_word.is_displayed():
+                        # Get and extract word to translate from getted value from webpage
                         local_word_to_translate_txt = local_word_to_translate.text
+                        converted_word_to_translate = re.split(";|,", local_word_to_translate_txt)[0].lower().strip()
+                        # Get translated word
                         local_translated_word_txt = local_translated_word.text
-                        save_correct_translation_in_json_file(learning_page_question_usage_example_text, word_to_translate=local_word_to_translate_txt, word_translation=local_translated_word_txt)
+                        # Save correct translation in json file
+                        save_correct_translation_in_json_file(learning_page_question_usage_example_text, word_to_translate=converted_word_to_translate, word_translation=local_translated_word_txt)
 
                 ## Source of checking if word translation is correct
                 if answer_result_type == "green": # answer is correct
