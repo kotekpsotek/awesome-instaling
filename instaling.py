@@ -38,7 +38,7 @@ def save_changes_in_json_file(content, file_localization):
 # Function which aim is save word translation in .json file with translations when this word translation doesn't already exist
 ## Behaviour: Word translation will be save when question_with_word_usage and word_to_translate added for function params isn't empty and when them isn't just as this keys from .json file, or Update Empty Question when in file with translations has been empty question ("question_content": "") and "word_to_translate" and "word_translation" from file is the same as these parameters added for this function 
 path_with_words_translation_file: str = "./translations.json"
-def save_correct_translation_in_json_file(question_with_word_usage, word_to_translate: str, word_translation: str):
+def save_correct_translation_in_json_file(question_with_word_usage, word_to_translate: str, word_translation: str): # TODO: Add system which checks if saved correct transaltion isn't in file with words which cound't be translated
     # Converted variables to correct form
     word_to_translate = word_to_translate.lower().strip()
     word_translation = word_translation.lower().strip()
@@ -277,6 +277,24 @@ def start_new_session():
                 #### Session words!!!!
                 time.sleep(0.5) # wait 0.5 sec before starts doing asnwer action
                 learning_page = browser.find_element(By.ID, "learning_page")
+                
+                # Handle question about "If you know this word __? If you know these word next word will be harder -> so i think you shoudn't know this word when you are bot heheheh :)"
+                learning_page_question_if_you_know_new_word: WebElement = learning_page.find_element(By.XPATH, "//div[@id=\"new_word_form\"]")
+                if learning_page_question_if_you_know_new_word.is_displayed():
+                    # Step 1 click "No"
+                    dont_know_button: WebElement = learning_page_question_if_you_know_new_word.find_element(By.XPATH, "//div[@id=\"dont_know_new\"]")
+                    dont_know_button.click()
+
+                    # Step 2 skip advice about
+                    possible_word_page = browser.find_element(By.ID, "possible_word_page")
+
+                    if possible_word_page.is_displayed():
+                        # Click on "Skip" button
+                        skip_button: WebElement = possible_word_page.find_element(By.ID, "skip")
+                        skip_button.click()
+                    continue # go to next loop iteration
+                
+                ## Get Data of Normal Question
                 # Section with question and word/words to translate
                 learning_page_question_usage_example_text: str = learning_page.find_element(By.XPATH, "//div[@id=\"question\"]/div[@class=\"usage_example\"]").text # question text
                 learning_page_question_caption_translations_text: str = learning_page.find_element(By.XPATH, "//div[@id=\"question\"]/div[@class=\"caption\"]/div[@class=\"translations\"]").text # word which should be translated
@@ -408,7 +426,7 @@ def start_new_session():
 
                 # Go to next question or cancel session when last answer has been pass
                 check_answer_page = browser.find_element(By.XPATH, "/html/body/div/div[9]")
-                finish_page = browser.find_element(By.XPATH, "/html/body/div/div[12]")
+                finish_page = browser.find_element(By.ID, "finish_page")
 
                 if check_answer_page.is_displayed(): # when next question is availeble
                     # Go to next Question via click in "Następne" button after end previous question
@@ -423,6 +441,7 @@ def start_new_session():
                     go_to_main_instaling_page.click()
                     
                     # Stop session loop and so stop answering for session questions by program
+                    print("Test")
                     do_single_session = False
                     print("Session ends!!!")
 
@@ -454,7 +473,6 @@ def login(login, passoword):
     else: # when user can't be sing in
         print("Program cound't signed in you!!!")
         exit(0) # exit application whithout error because this is code 0 but no 1..
-
 
 def start_instaling(user_login: str, user_password: str): # i know, i know i don't have to put types but i love staticly typed languages :)
     login(user_login, user_password) # login user
