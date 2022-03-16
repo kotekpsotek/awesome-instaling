@@ -253,10 +253,20 @@ def start_new_session():
             timeout_between_pass_word_and_check_it: float = 0.3 # delay between pass translated word and send it for check // in seconds
             
             # Loop which allow program to do all questions from single session
-            do_single_session: bool = True
             iteration_count: int = 0
-            while do_single_session:
+            while True:
                 iteration_count += 1
+
+                # Handle finish page after when the bot pass answers for all questions
+                finish_page = browser.find_element(By.ID, "finish_page")
+                if finish_page.is_displayed(): # when sessions ends
+                    # Go to main instaling.pl user panel after end the session
+                    go_to_main_instaling_page = browser.find_element(By.XPATH, "/html/body/div/div[12]/div[2]/h4")
+                    go_to_main_instaling_page.click()
+                    
+                    # Stop session loop and so stop answering for session questions by program
+                    print("Session ends!!!")
+                    break
 
                 # Start/Continue started session (only one page can be displayed in one time)
                 start_session_page = browser.find_element(By.ID, "start_session_page")
@@ -426,7 +436,6 @@ def start_new_session():
 
                 # Go to next question or cancel session when last answer has been pass
                 check_answer_page = browser.find_element(By.XPATH, "/html/body/div/div[9]")
-                finish_page = browser.find_element(By.ID, "finish_page")
 
                 if check_answer_page.is_displayed(): # when next question is availeble
                     # Go to next Question via click in "Następne" button after end previous question
@@ -435,15 +444,6 @@ def start_new_session():
 
                     # Timeout between answers for questions
                     time.sleep(timeout_between_answers_for_questions)
-                elif finish_page.is_displayed(): # when sessions ends
-                    # Go to main instaling.pl user panel after end the session
-                    go_to_main_instaling_page = browser.find_element(By.XPATH, "/html/body/div/div[12]/div[2]/h4")
-                    go_to_main_instaling_page.click()
-                    
-                    # Stop session loop and so stop answering for session questions by program
-                    print("Test")
-                    do_single_session = False
-                    print("Session ends!!!")
 
             # TODO: code must working for multiple words translations so top code should be in infinity loop (while is in python the best for that)
         else:
