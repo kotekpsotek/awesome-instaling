@@ -1,0 +1,8 @@
+{
+    "coudn't_translated_list": [
+        {
+            "question_content": "Question where word which coudn't be translated will be used",
+            "word_to_translate": "word which should be translated"
+        }
+    ]
+}

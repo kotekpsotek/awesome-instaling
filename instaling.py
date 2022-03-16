@@ -8,10 +8,13 @@ from typing import Any, Tuple
 from googletrans.models import Translated
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.remote.webelement import WebElement
 
 webdriver_path = os.path.abspath("webdriver_path/chromedriver.exe")
-browser = webdriver.Chrome(executable_path=webdriver_path)
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("--mute-audio")
+browser = webdriver.Chrome(service = Service(executable_path=webdriver_path), options = chrome_options)
 
 # Imitate user in putting letters inside <textarea></textarea>'s and <input>
 def put_keys_as_a_user(string: str, in_element):
@@ -74,6 +77,9 @@ def save_correct_translation_in_json_file(question_with_word_usage, word_to_tran
                 word_translation_dict = { "question_content": question_with_word_usage, "word_to_translate": word_to_translate, "word_translation": word_translation }
                 words_list_from_json_file.append(word_translation_dict)
 
+                # Remove word which has been already translated from list with words which coudn't be translated -> this is doed: if this word exists on this list
+                delete_word_which_coudnt_be_translated(question_with_word_usage, word_to_translate)
+
                 # Save new added translated word in .json file with words transation
                 save_changes_in_json_file(file_content_json, path_with_words_translation_file)
             elif not key_already_has_been_translated and empty_question_word_translation_detected: # Behaviour: Add Question to word translation where word where qord should be used is empty
@@ -98,6 +104,9 @@ def save_correct_translation_in_json_file(question_with_word_usage, word_to_tran
             # Create .json file with translations JSON format Schema
             translated_words_file_json_content = { "words_list" : [{ "question_content": question_with_word_usage, "word_to_translate": word_to_translate, "word_translation": word_translation }] }
 
+            # Remove word which has been already translated from list with words which coudn't be translated -> this is doed: if this word exists on this list
+            delete_word_which_coudnt_be_translated(question_with_word_usage, word_to_translate)
+            
             # Save new added translated word in .json file with words transation
             save_changes_in_json_file(translated_words_file_json_content, path_with_words_translation_file)
 
@@ -242,6 +251,82 @@ def word_translation_is_bad(question_with_word_usage, word_to_translate, word_tr
         return local_word_translation_is_bad
     else:
         return False
+
+# Function which will save words which coudn't be translated because it is a Synonim or other blue error
+path_with_words_which_coudnt_be_translated: str = "./coudnt_translated_words.json"
+def save_word_which_coudnt_be_translated(question_with_word_usage: str, word_to_translate: str):
+    file_with_words_which_coudnt_be_translated = open(path_with_words_which_coudnt_be_translated, "r")
+    file_with_words_which_coudnt_be_translated_content = file_with_words_which_coudnt_be_translated.read()
+
+    if len(file_with_words_which_coudnt_be_translated_content) > 0:
+        # Deserialize .json file content to JSON object syntax
+        file_content_json = json.loads(file_with_words_which_coudnt_be_translated_content)
+
+        # Get .json words which coudn't be translated list for add new word which coudn't be translated to array
+        words_which_coudnt_be_translated_list_from_json_file: list[dict[str, str]] = file_content_json["coudn't_translated_list"]
+
+        # Add new word which coudn't be translated to file with bad words translations
+        ## Check when this word which coudn't be translated hasn't been already added
+        word_which_coudnt_be_translated_already_has_been_added: bool = False
+        for sing_word in words_which_coudnt_be_translated_list_from_json_file:
+            local_question_content = sing_word["question_content"]
+            local_word_to_translate = sing_word["word_to_translate"]
+
+            if local_question_content == question_with_word_usage and local_word_to_translate == word_to_translate:
+                word_which_coudnt_be_translated_already_has_been_added = True
+                break
+
+        ### When the same bad word translation hasn't be found in .json file content with bad word translations then this bad word translation will be saved
+        if not word_which_coudnt_be_translated_already_has_been_added:
+            instance_bad_word_translation_src = { "question_content": question_with_word_usage, "word_to_translate": word_to_translate }
+            words_which_coudnt_be_translated_list_from_json_file.append(instance_bad_word_translation_src)
+
+            # Save new added translated word in .json file with words transation
+            save_changes_in_json_file(file_content_json, path_with_words_which_coudnt_be_translated)
+    else:
+        word_which_coudnt_be_translated_file_json_content = {
+            "coudn't_translated_list": [
+                {
+                    "question_content": question_with_word_usage,
+                    "word_to_translate": word_to_translate
+                }
+            ]
+        }
+
+        save_changes_in_json_file(word_which_coudnt_be_translated_file_json_content, path_with_words_which_coudnt_be_translated)
+
+    file_with_words_which_coudnt_be_translated.close()
+
+# Function which delete word which coudn't be translated from this words list placed in JSON file
+def delete_word_which_coudnt_be_translated(question_with_word_usage: str, word_to_translate: str):
+    file = open(path_with_words_which_coudnt_be_translated)
+    file_content = file.read()
+
+    # Deserialize content from JSON format
+    file_content_json = json.loads(file_content)
+
+    # Get list with all words from json
+    list_with_words: list[dict[str, str]] = file_content_json["coudn't_translated_list"]
+
+    # Iterate over all element from list and remove word from it
+    word_matched: bool = False
+    for num in range(0, len(list_with_words)):
+        # Get word instance
+        word_instance = list_with_words[num]
+        
+        # Get keys from instance
+        local_word_question = word_instance["question_content"]
+        local_word_to_translate = word_instance["word_to_translate"]
+
+        # When word_instance is just as word which should be deleted
+        if local_word_question == question_with_word_usage and local_word_to_translate == word_to_translate:
+            word_matched = True
+            list_with_words.remove(word_instance)
+            break
+
+    if word_matched:
+        print("\n\nHere:\n"+str(list_with_words))
+        save_changes_in_json_file(file_content_json, path_with_words_which_coudnt_be_translated)
 
 def start_new_session():
     start_session_button = browser.find_element(By.XPATH, '//*[@id="student_panel"]/p[1]/a')
@@ -420,7 +505,9 @@ def start_new_session():
                 elif answer_result_type == "blue": # answer is incorrect because putted word is synonim or in word has been detected typo error
                     # Save incorrect word into specific file and form for "blue"
                     save_bad_word_translation(learning_page_question_usage_example_text, word_to_translate, translated_word, "synonim")
-                    # Save correct word translation after bad answer
+                    # Save word which coudn't be translated in the JSON file with this list
+                    save_word_which_coudnt_be_translated(learning_page_question_usage_example_text, word_to_translate)
+                    # Save correct word translation after bad answer -> this is doed only when correct word usage is displayed after pass bad answer for question!!!
                     save_correct_answer_after_bad_answering()
                     # print answer color
                     print("blue")
@@ -444,8 +531,6 @@ def start_new_session():
 
                     # Timeout between answers for questions
                     time.sleep(timeout_between_answers_for_questions)
-
-            # TODO: code must working for multiple words translations so top code should be in infinity loop (while is in python the best for that)
         else:
             print("Something wents wrong!!!")
     else:
@@ -480,6 +565,11 @@ def start_instaling(user_login: str, user_password: str): # i know, i know i don
 
 
 if __name__ == "__main__":
-    save_correct_translation_in_json_file("Question where word whould be used v4.0", "pizza", "Test")
+    # Save word which coudn't be translated in JSON file
+    save_word_which_coudnt_be_translated("Test question", "test word to translate")
+    # Delete word which coudn't be translated from JSON file
+    time.sleep(3.5)
+    delete_word_which_coudnt_be_translated("Test question", "test word to translate")
+    # save_correct_translation_in_json_file("Question where word whould be used v4.0", "pizza", "Test")
     # print(word_translation_is_bad(question_with_word_usage="Tina always tries to support _____ ___________.", word_to_translate="lokalne rzemiosło artystyczne", word_translation="local handicratfs"))
     # start_instaling("test_login_data", "test_password")
