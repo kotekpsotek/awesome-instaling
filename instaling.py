@@ -40,7 +40,7 @@ def save_changes_in_json_file(content, file_localization):
 
 # Function which aim is save word translation in .json file with translations when this word translation doesn't already exist
 ## Behaviour: Word translation will be save when question_with_word_usage and word_to_translate added for function params isn't empty and when them isn't just as this keys from .json file, or Update Empty Question when in file with translations has been empty question ("question_content": "") and "word_to_translate" and "word_translation" from file is the same as these parameters added for this function 
-path_with_words_translation_file: str = "./translations.json"
+path_with_words_translation_file: str = "./translations/translations.json"
 def save_correct_translation_in_json_file(question_with_word_usage, word_to_translate: str, word_translation: str): # TODO: Add system which checks if saved correct transaltion isn't in file with words which cound't be translated
     # Converted variables to correct form
     word_to_translate = word_to_translate.lower().strip()
@@ -161,7 +161,7 @@ def get_word_translation_from_file(question_with_word_usage: str, word_to_transl
         return None
 
 # Function which save bad word translation with all added keys in function parameters in .json file (incorrect_translations.json) when this word translation isn't already exists
-path_with_bad_words_translations_file: str = "./incorrect_translations.json"
+path_with_bad_words_translations_file: str = "./translations/incorrect_translations.json"
 def save_bad_word_translation(question_with_word_usage, word_to_translate: str, word_translation: str, type):
     """ Function params introduce:
         question_with_word_usage - this is question placed at the top of container with word to translate and this question looks like: They sell it at an __________ price,
@@ -253,7 +253,7 @@ def word_translation_is_bad(question_with_word_usage, word_to_translate, word_tr
         return False
 
 # Function which will save words which coudn't be translated because it is a Synonim or other blue error
-path_with_words_which_coudnt_be_translated: str = "./coudnt_translated_words.json"
+path_with_words_which_coudnt_be_translated: str = "./translations/coudnt_translated_words.json"
 def save_word_which_coudnt_be_translated(question_with_word_usage: str, word_to_translate: str):
     file_with_words_which_coudnt_be_translated = open(path_with_words_which_coudnt_be_translated, "r")
     file_with_words_which_coudnt_be_translated_content = file_with_words_which_coudnt_be_translated.read()
