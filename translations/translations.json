@@ -1,0 +1,9 @@
+{
+    "words_list": [
+        {
+            "question_content": "Question where word whould be used",
+            "word_to_translate": "pizza",
+            "word_translation": "Test"
+        }
+    ]
+}
