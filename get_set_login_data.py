@@ -1,8 +1,5 @@
 import json
 
-login_data_file = open("config/loginData.json", "r")
-login_data_file_text = login_data_file.read()
-
 def add_or_change_login_data(login: str, passwd: str): # function which can create login data file or can change login data
     print("")
 
@@ -23,6 +20,9 @@ def add_or_change_login_data(login: str, passwd: str): # function which can crea
     
 def get_login_data():
     try:
+        login_data_file = open("config/loginData.json", "r")
+        login_data_file_text = login_data_file.read()
+        
         if login_data_file_text.__len__() > 0: # when in config/loginData.json file is some text content
             json_obj_with_login = json.loads(login_data_file_text) # deserialize json document to python object
 
@@ -30,12 +30,8 @@ def get_login_data():
             password: str = json_obj_with_login['pass']
 
             # When fields required to login are empty
-            if login.__len__() == 0: # When user login value is empty
-                json_obj_with_login = add_or_change_login_data(login="", passwd=password)
-            if password.__len__() == 0: # When user passowrd is empty
-                json_obj_with_login = add_or_change_login_data(login=login, passwd="")
+            add_or_change_login_data(login=login, passwd=password)
 
-            # TODO: Things after get or set user login data + Get login data should be function which will be moving to the "login_feauture.py" file
             return json_obj_with_login
         else: # user must add data to login
             login_data_return = add_or_change_login_data(login="", passwd="")
