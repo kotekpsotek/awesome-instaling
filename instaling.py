@@ -221,9 +221,9 @@ class JsonFilesOperations():
 
             # Iterate over all translations and check if this translation is bad
             for bad_translation in bad_translations_list:
-                local_word_usage_question = bad_translation["question_content"]
-                local_word_to_translate = bad_translation["word_to_translate"]
-                local_word_translation = bad_translation["word_translation"]
+                local_word_usage_question: str = bad_translation["question_content"].strip()
+                local_word_to_translate: str = bad_translation["word_to_translate"].strip()
+                local_word_translation: str = bad_translation["word_translation"].strip()
 
                 # When this word translation is bad because it is in the bad translations list
                 if local_word_usage_question == question_with_word_usage and local_word_to_translate == word_to_translate and local_word_translation == word_translation:
@@ -260,7 +260,7 @@ class JsonFilesOperations():
 
             ### When the same bad word translation hasn't be found in .json file content with bad word translations then this bad word translation will be saved
             if not word_which_coudnt_be_translated_already_has_been_added:
-                instance_bad_word_translation_src = { "question_content": question_with_word_usage, "word_to_translate": word_to_translate }
+                instance_bad_word_translation_src = { "question_content": question_with_word_usage.strip(), "word_to_translate": word_to_translate.strip() }
                 words_which_coudnt_be_translated_list_from_json_file.append(instance_bad_word_translation_src)
 
                 # Save new added translated word in .json file with words transation
@@ -269,8 +269,8 @@ class JsonFilesOperations():
             word_which_coudnt_be_translated_file_json_content = {
                 "coudn't_translated_list": [
                     {
-                        "question_content": question_with_word_usage,
-                        "word_to_translate": word_to_translate
+                        "question_content": question_with_word_usage.strip(),
+                        "word_to_translate": word_to_translate.strip()
                     }
                 ]
             }
