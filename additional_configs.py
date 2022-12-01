@@ -2,6 +2,7 @@ import json as j
 import os
 
 INSTANCE_CONFIG_PATH: str = os.path.join("config", "ad_config.json")
+ALLOWED_ANSWERS: list[str] = ["bg", "ev", "lw"]
 
 # Determing How sentence words should looks
 class WordsCaseMode():
@@ -47,12 +48,11 @@ class WordsCaseMode():
     def process_input_result():
         # To Save/Re-save settings all setting file must not exists
         if not os.path.exists(INSTANCE_CONFIG_PATH):
-            allowed_answers: list[str] = ["bg", "ev", "lw"]
             default_answer = "lw"
             answer = WordsCaseMode._get_input_result()
             
             # Check recived answer
-            if answer in allowed_answers:
+            if answer in ALLOWED_ANSWERS:
                 # When user put allowed answer
                 WordsCaseMode._retain_or_save_config(answer)
             elif len(answer) == 0:
