@@ -5,11 +5,12 @@ import json
 import random
 import googletrans
 from typing import Any, Tuple
-from googletrans.models import Translated
 from selenium import webdriver
+from googletrans.models import Translated
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.remote.webelement import WebElement
+from additional_configs import WordsCaseMode, ALLOWED_ANSWERS
 
 class JsonFilesOperations():
     path_with_words_translation_file: str = "./translations/translations.json"
@@ -318,12 +319,30 @@ def put_keys_as_a_user(string: str, in_element):
         time.sleep(sleep_time)
 
 # Function translate word from parameter to english (default) by use google translator and return translated word from her body
-def translate_word_by_use_google_tr(word: str):
+def translate_word_by_use_google_tr(word: str) -> Translated:
     translator_machine = googletrans.Translator()
     translator_word_lang_detect = translator_machine.detect(word).lang
     translated_word = translator_machine.translate(word, dest="en", src=translator_word_lang_detect) # get the translated word text
     
     return translated_word
+
+# Ajust letter look for each word from answer sentence
+def adjust_translated_word(tr_word: str) -> str:
+    adit_configuration = WordsCaseMode.get_conf_file_parsed()
+    word_mode = adit_configuration["words_case_type"]
+    if word_mode in ALLOWED_ANSWERS:
+        if word_mode == "lw":
+            # All words from senetence is in lower case mode
+            return tr_word.lower()
+        elif word_mode == "bg":
+            # First word from sentence is capitalized
+            return tr_word.capitalize()
+        elif word_mode == "ev":
+            # Each word from answer sentence is capitalized
+            return tr_word.title()
+    else:
+        # When is not allowed configuration for answers then return raw obtained word
+        return tr_word
 
 def start_new_session(browser):
     start_session_button = browser.find_element(By.XPATH, '//*[@id="student_panel"]/p[1]/a')
@@ -412,7 +431,8 @@ def start_new_session(browser):
 
                             ## Get translation word translation from Google Translator when word translation coudn't be found in JSON file
                             if len(local_translation) == 0 or local_translation == None:
-                                local_translation = translate_word_by_use_google_tr(single_word_to_translate).text
+                                # Obtain word translation/adjust letter mode for it and assign to giving answer
+                                local_translation = adjust_translated_word(translate_word_by_use_google_tr(single_word_to_translate).text)
 
                             ### Check if word translation is good or go to next iteration -> check action has been doed in "incorrect_translatrions.json" file
                             if not JsonFilesOperations.word_translation_is_bad(question_with_word_usage=learning_page_question_usage_example_text, word_to_translate=single_word_to_translate, word_translation=local_translation):
@@ -426,7 +446,8 @@ def start_new_session(browser):
 
                         ## Get translation word translation from Google Translator when word translation coudn't be found in JSON file
                         if len(local_translation) == 0 or local_translation == None:
-                            local_translation = translate_word_by_use_google_tr(word_to_translate).text
+                            # Obtain word translation/adjust letter mode for it and assign to giving answer
+                            local_translation = adjust_translated_word(translate_word_by_use_google_tr(word_to_translate).text)
 
                         ### Check if word translation is good or go to next iteration -> check action has been doed in "incorrect_translatrions.json" file
                         if not JsonFilesOperations.word_translation_is_bad(question_with_word_usage=learning_page_question_usage_example_text, word_to_translate=word_to_translate, word_translation=local_translation):
@@ -569,10 +590,11 @@ def start_instaling(user_login: str, user_password: str): # i know, i know i don
 
 if __name__ == "__main__":
     # Save word which coudn't be translated in JSON file
-    JsonFilesOperations.save_word_which_coudnt_be_translated("Test question", "test word to translate")
+    """ JsonFilesOperations.save_word_which_coudnt_be_translated("Test question", "test word to translate") """
     # Delete word which coudn't be translated from JSON file
-    time.sleep(3.5)
-    JsonFilesOperations.delete_word_which_coudnt_be_translated("Test question", "test word to translate")
+    """ time.sleep(3.5) """
+    # # JsonFilesOperations.delete_word_which_coudnt_be_translated("Test question", "test word to translate")
     # save_correct_translation_in_json_file("Question where word whould be used v4.0", "pizza", "Test")
     # print(word_translation_is_bad(question_with_word_usage="Tina always tries to support _____ ___________.", word_to_translate="lokalne rzemiosło artystyczne", word_translation="local handicratfs"))
-    # start_instaling("test_login_data", "test_password")
+    """ start_instaling("test_login_data", "test_password") """
+    print(adjust_translated_word("You're Really goOd for humans and animals"))
