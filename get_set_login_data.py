@@ -2,8 +2,6 @@ import json
 import os
 
 def add_or_change_login_data(login: str, passwd: str): # function which can create login data file or can change login data
-    print("")
-
     login_data_disctionary = {"login": login, "pass": passwd} # 1 - login, 2 - passowrd (always only two values or less)
 
     if login.__len__() == 0: # When login must be changed/added

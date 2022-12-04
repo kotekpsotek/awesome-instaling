@@ -1,11 +1,11 @@
 import argparse, typing, re
-from get_set_login_data import get_login_data
+from get_set_login_data import get_login_data, add_or_change_login_data
 from instaling import start_instaling
 from additional_configs import WordsCaseMode # site to configure additional options
 
 def add_arguments_and_commands(arg_parser_inst: argparse.ArgumentParser):
     # Run bot in different manner
-    arg_parser_inst.add_argument("--run", help="Run bot. You must attach boolean \"true\" to run bot otherwise bot won't be launch (dichotomous scale = only two available options) (action is equal to don't any argument)", required=False, type=bool)
+    arg_parser_inst.add_argument("--run", help="Run bot. You must attach boolean \"true\" to run bot otherwise bot won't be launched (dichotomous scale = only two available options) (action is equal to don't any argument)", required=False, type=bool)
     
     # Bot additional options configuration
         # Start bot configuration
@@ -24,6 +24,14 @@ def add_arguments_and_commands(arg_parser_inst: argparse.ArgumentParser):
     }
     arg_parser_inst.add_argument("--adconfshow", **display_addconfig_argsfor)
     arg_parser_inst.add_argument("-ads", **display_addconfig_argsfor)
+        # Change instaling.pl login datas
+    instaling_login_dat = {
+        "help": "Change login datas for instaling.pl. Required: boolean \"true\" to perform behaviour",
+        "required": False,
+        "type": bool
+    }
+    arg_parser_inst.add_argument("--cinstlog", **instaling_login_dat)
+    arg_parser_inst.add_argument("-cin", **instaling_login_dat)
 
 
 # Check whether any argument has been passed durning launching the program
@@ -72,6 +80,9 @@ def main():
             res_for_output = re.split("\n$", res_for_output)[0]
                 # Display that values
             print(f"Configured additional bot options are:\n\n{res_for_output}")
+        elif parsed_args.cinstlog or parsed_args.cin:
+            # Change login datas for instaling.pl
+            add_or_change_login_data("", "")
         else:
             # Unsupported arguments are handled automaticaly by "argparse" module
             pass 

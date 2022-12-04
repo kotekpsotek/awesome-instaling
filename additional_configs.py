@@ -26,7 +26,7 @@ class WordsCaseMode():
 
     # Change existsing config to new or re-save config with new configuration datas
     def _retain_or_save_config(answer_sen_case_type: str):
-        # Enter to stdout message about incorrect structure of config file
+        # Enter to stdout message about incorrect structure of 2config file
         def inc_stdout():
             print(f"Couldn't save configuration file \"{INSTANCE_CONFIG_PATH}\"!")
 
