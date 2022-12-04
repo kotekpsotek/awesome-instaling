@@ -432,7 +432,7 @@ def start_new_session(browser):
                             ## Get translation word translation from Google Translator when word translation coudn't be found in JSON file
                             if len(local_translation) == 0 or local_translation == None:
                                 # Obtain word translation/adjust letter mode for it and assign to giving answer
-                                local_translation = adjust_translated_word(translate_word_by_use_google_tr(single_word_to_translate).text)
+                                local_translation = translate_word_by_use_google_tr(single_word_to_translate).text
 
                             ### Check if word translation is good or go to next iteration -> check action has been doed in "incorrect_translatrions.json" file
                             if not JsonFilesOperations.word_translation_is_bad(question_with_word_usage=learning_page_question_usage_example_text, word_to_translate=single_word_to_translate, word_translation=local_translation):
@@ -447,7 +447,7 @@ def start_new_session(browser):
                         ## Get translation word translation from Google Translator when word translation coudn't be found in JSON file
                         if len(local_translation) == 0 or local_translation == None:
                             # Obtain word translation/adjust letter mode for it and assign to giving answer
-                            local_translation = adjust_translated_word(translate_word_by_use_google_tr(word_to_translate).text)
+                            local_translation = translate_word_by_use_google_tr(word_to_translate).text
 
                         ### Check if word translation is good or go to next iteration -> check action has been doed in "incorrect_translatrions.json" file
                         if not JsonFilesOperations.word_translation_is_bad(question_with_word_usage=learning_page_question_usage_example_text, word_to_translate=word_to_translate, word_translation=local_translation):
@@ -489,7 +489,8 @@ def start_new_session(browser):
                     translated_word = translate_this_word(word_to_translate=word_to_translate)[1]
 
                 # Put answer to input and accept by click in accept answer button
-                put_keys_as_a_user(translated_word.lower().strip(), learning_page_learning_form_check_input) # Put translated word to input for answer
+                translated_word = adjust_translated_word(translated_word)
+                put_keys_as_a_user(translated_word.strip(), learning_page_learning_form_check_input) # Put translated word to input for answer
                 time.sleep(timeout_between_pass_word_and_check_it)
                 learning_page_learning_form_check_button.click() # Accept putted value in input
 
